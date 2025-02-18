@@ -1,22 +1,7 @@
 
 <launch>
       <arg name="ns" default="st" />
-      <arg name="map_file" default="$(find robify_nav)/map/map.yaml" />
-      
-      <node name="map_server" pkg="map_server"
-            type="map_server"
-            args="$(arg map_file)" />
-      <!-- <arg name="ns" default="r1" />
-      <arg name="map_file" default="$(find robify_nav)/map/map.yaml" />
-      
-      <node name="map_server" pkg="map_server"
-            type="map_server"
-            args="$(arg map_file)" />
-      <param name="odom_frame" value="$(arg ns)/odom"/>
-      <param name="base_frame" value="$(arg ns)/base_link"/>
-      <param name="published_frame" value= "$(arg ns)/base_footprint"/>
-      <param name="tracking_frame" value="$(arg ns)/imu_link"/>
-      <param name="/use_sim_time" value="false" /> -->
+
 
       <group ns="$(arg ns)">
       <node name="cartographer_node" pkg="cartographer_ros"
@@ -31,13 +16,6 @@
             args="-resolution 0.02 -pure_localization 1"
             />
       </group>
-      <!-- Launch AMCL for localization -->
-      <!-- <group ns="$(arg ns)">
-      <node name="amcl" pkg="amcl" type="amcl" respawn="false" />
-                  <param name="odom_frame_id"  value="$(arg ns)/odom"/>
-                  <param name="base_frame_id"  value="$(arg ns)/base_footprint"/>
-                  <remap from="map" to="/map"/>
-      </group> -->
 
 
 </launch>
