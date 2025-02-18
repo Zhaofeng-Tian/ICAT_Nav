@@ -1,0 +1,52 @@
+<launch>
+    <arg name="ns" default="r1" />
+    <arg name="use_gui" default="false"/>
+    <arg name="use_rviz" default="false"/>
+    <arg name="nav_use_rotvel" default="false"/>
+    <arg name="use_camera" default="false"/>
+    <arg name="robot_type" value="ST" doc="robot_type [ST,S,X]"/>
+    <group ns="$(arg ns)"> 
+ 
+    <param name="odom_frame" value="$(arg ns)/odom"/>
+    <param name="base_frame" value="$(arg ns)/base_footprint"/>
+    <param name="robot_description" command="$(find xacro)/xacro --inorder 
+        '$(find robify_description)/urdf/robify_ST_multi.urdf.xacro' ns:='$(arg ns)'" 
+        if="$(eval arg('robot_type') == 'ST')" />
+
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+
+    <!-- Car Driver Node -->
+    <node pkg="robify_bringup" type="car_driver.py" name="driver_node" required="true" output="screen" 
+            if="$(eval arg('robot_type') == 'ST')">
+        <param name="car_type" type="string" value="$(eval arg('robot_type'))"/>
+        <param name="xlinear_speed_limit" type="double" value="1.0"/>
+        <param name="ylinear_speed_limit" type="double" value="1.0"/>
+        <param name="angular_speed_limit" type="double" value="5.0"/>
+        <param name="nav_use_rotvel" type="bool" value="$(arg nav_use_rotvel)"/>
+        <param name="imu_link" type="string" value="$(arg ns)/imu_link"/>
+        <param name="prefix"   type="string" value="$(arg ns)" />
+        <remap from="/pub_vel" to="vel_raw"/>
+        <remap from="/pub_imu" to="imu/imu_raw"/>
+        <remap from="/pub_mag" to="mag/mag_raw"/>
+    </node>
+
+    <!-- Odom Node -->
+    <node name="odom_node" pkg="robify_bringup" type="odom_node" output="screen">
+        <param name="wheelbase" value="0.24"/>
+        <param name="linear_speed_scale" value="1.0"/>
+        <param name="angular_speed_scale" value="0.4"/>
+    </node>
+
+    <!-- Include FDI Link AHRS Launch -->
+    <include file="$(find fdilink_ahrs)/launch/ahrs_data.launch" >
+        <arg name="ns" value="$(arg ns)" />
+    </include>
+    <!-- Include RPLidar Launch -->
+    <include file="$(find rplidar_ros)/launch/rplidar.launch" >
+        <arg name="ns" value="$(arg ns)" />
+    </include>
+    <!-- Include Camera Launch -->
+    <include file="$(find astra_camera)/launch/astraproplus.launch" if="$(arg use_camera)" />
+    </group>
+</launch>

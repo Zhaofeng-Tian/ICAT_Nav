@@ -1,0 +1,5 @@
+ i> When single bringup， whether change .lua or launch param, 
+    does not impact carto, it works.
+
+ii> When multi bringup with r1 namespace, 
+    carto doesn't work no matter change .lua/launch param or not.
